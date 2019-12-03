@@ -1,0 +1,61 @@
+data:
+
+auxText is text
+pc is number
+opcode is number
+inA is number
+inB is number
+out is number
+noun is number
+verb is number
+programText is text list
+program is number list
+
+procedure:
+
+load file "2.txt" in auxText
+split auxText by "," in programText
+
+for noun from 0 to 100 step 1 do
+    for verb from 0 to 100 step 1 do
+
+        clear program
+        for each auxText in programText do
+            trim auxText in auxText
+            store auxText in out
+            push out to program
+        repeat
+
+        store noun in program:1
+        store verb in program:2
+
+        store 0 in pc
+        while 0 is equal to 0 do
+            store program:pc in opcode
+            if opcode is equal to 99 then
+                break
+            end if
+            in pc solve pc + 1
+            store program:program:pc in inA
+            in pc solve pc + 1
+            store program:program:pc in inB
+            in pc solve pc + 1
+            if opcode is equal to 1 then
+                in out solve inA + inB
+            else if opcode is equal to 2 then
+                in out solve inA * inB
+            end if
+            store out in program:program:pc
+            in pc solve pc + 1
+        repeat
+
+        if program:0 is equal to 19690720 then
+            goto end
+        end if
+
+    repeat
+repeat
+
+label end
+in out solve 100 * noun + verb
+display out crlf

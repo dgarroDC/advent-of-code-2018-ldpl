@@ -1,0 +1,22 @@
+data:
+
+auxText is text
+auxNumber is number
+lines is text list
+result is number
+
+procedure:
+
+load file "1.txt" in auxText
+split auxText by crlf in lines
+delete last element of lines
+
+for each auxText in lines do
+    store auxText in auxNumber
+    in auxNumber solve auxNumber / 3
+    floor auxNumber
+    in auxNumber solve auxNumber - 2
+    in result solve result + auxNumber
+repeat
+
+display result crlf
