@@ -1,0 +1,80 @@
+using package std-math
+
+data:
+
+auxText is text
+lines is text list
+wires is text list list
+
+positions is number map
+minDist is number
+
+procedure:
+
+load file "3.txt" in auxText
+split auxText by "\n" in lines
+push list to wires
+push list to wires
+split lines:0 by "," in wires:0
+split lines:1 by "," in wires:1
+
+sub markPositions
+parameters:
+    wire is text list
+    checkCross is number
+local data:
+    newPosition is text
+    movement is text
+    dir is text
+    size is number
+    cX is number
+    cY is number
+    dX is number
+    dY is number
+    i is number
+    length is number
+    dist is number
+    distAux is number
+procedure:
+    for each movement in wire do
+        get character at 0 from movement in dir
+        store 0 in dX
+        store 0 in dY
+        if dir is equal to "U" then
+            store 1 in dY
+        else if dir is equal to "R" then
+            store 1 in dX
+        else if dir is equal to "D" then
+            store -1 in dY
+        else if dir is equal to "L" then
+            store -1 in dX
+        end if
+        get length of movement in length
+        in length solve length - 1
+        substring movement from 1 length length in auxText
+        store auxText in size
+        for i from 0 to size step 1 do
+            in cX solve cX + dX
+            in cY solve cY + dY
+            in newPosition join cX "," cY
+            if checkCross is equal to 0 then
+                store 1 in positions:newPosition
+            else if positions:newPosition is equal to 1 then
+                store cX in dist
+                abs dist
+                store cY in distAux
+                abs distAux
+                in dist solve dist + distAux
+                if dist is not equal to 0 and ( minDist is equal to -1 or dist is less than minDist ) then
+                    store dist in minDist
+                end if
+            end if
+        repeat
+    repeat
+end sub
+
+store -1 in minDist
+call markPositions with wires:0 0
+call markPositions with wires:1 1
+
+display minDist crlf
