@@ -1,0 +1,73 @@
+data:
+
+auxText is text
+range is text list
+from is number
+to is number
+
+pass is number
+passText is text
+i is number
+
+adjacent is number
+decrease is number
+
+digit0 is number
+digit1 is number
+
+count is number
+
+procedure:
+
+load file "4.txt" in auxText
+split auxText by "-" in range
+
+store range:0 in from
+trim range:1 in range:1
+store range:1 in to
+in to solve to + 1
+
+for pass from from to to step 1 do
+    store pass in passText
+    store 0 in adjacent
+    store 0 in decrease
+    store 0 in i
+    while i is less than 5 do
+        get character at i from passText in auxText
+        store auxText in digit0
+        in i solve i + 1
+        get character at i from passText in auxText
+        store auxText in digit1
+        if digit0 is greater than digit1 then
+            store 1 in decrease
+        end if
+        if digit0 is equal to digit1 then
+            if i is greater than 1 then
+                in i solve i - 2
+                get character at i from passText in auxText
+                store auxText in digit1
+                in i solve i + 2
+            else
+                store -1 in digit1
+            end if
+            if digit0 is not equal to digit1 then
+                if i is less than 5 then
+                    in i solve i + 1
+                    get character at i from passText in auxText
+                    store auxText in digit1
+                    in i solve i - 1
+                else
+                    store -1 in digit1
+                end if
+                if digit0 is not equal to digit1 then
+                    store 1 in adjacent
+                end if
+            end if
+        end if
+    repeat
+    if adjacent is equal to 1 and decrease is equal to 0 then
+        in count solve count + 1
+    end if
+repeat
+
+display count crlf
