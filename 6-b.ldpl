@@ -1,0 +1,47 @@
+data:
+
+auxText is text
+lines is text list
+orbit is text list
+adjacents is text list map
+explored is number map
+result is number
+
+procedure:
+
+load file "6.txt" in auxText
+split auxText by crlf in lines
+delete last element of lines
+
+for each auxText in lines do
+    split auxText by ")" in orbit
+    push orbit:0 to adjacents:orbit:1
+    push orbit:1 to adjacents:orbit:0
+repeat
+
+store -1 in result
+call findSanta with "YOU"
+
+sub findSanta
+parameters:
+	planet is text
+local data:
+	planetAux is text
+procedure:
+	if explored:planet is equal to 1 then
+		return
+	end if
+	store 1 in explored:planet
+	for each planetAux in adjacents:planet do
+		if planetAux is equal to "SAN" then
+			display result crlf
+			exit
+		else
+			in result solve result + 1
+			call findSanta with planetAux
+			in result solve result - 1 
+		end if
+	repeat
+end sub
+
+display result crlf

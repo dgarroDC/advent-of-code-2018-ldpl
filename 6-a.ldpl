@@ -1,0 +1,46 @@
+data:
+
+auxText is text
+lines is text list
+orbit is text list
+orbits is text map
+orbited is text list map
+planets is text list
+planet is text
+count is number map
+result is number
+
+procedure:
+
+load file "6.txt" in auxText
+split auxText by crlf in lines
+delete last element of lines
+
+for each auxText in lines do
+    split auxText by ")" in orbit
+    store orbit:0 in orbits:orbit:1
+repeat
+
+get keys of orbits in planets
+for each planet in planets do
+	push planet to orbited:orbits:planet 
+repeat
+
+for each planet in orbited:"COM" do
+	call countOrbits with planet
+repeat
+
+sub countOrbits
+parameters:
+	planet is text
+local data:
+	planetAux is text
+procedure:
+	in count:planet solve count:orbits:planet + 1
+	in result solve result + count:planet
+	for each planetAux in orbited:planet do
+		call countOrbits with planetAux
+	repeat
+end sub
+
+display result crlf
