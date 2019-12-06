@@ -1,0 +1,98 @@
+data:
+
+auxText is text
+pc is number
+opcode is text
+mode0 is text
+mode1 is text
+mode2 is text
+inA is number
+inB is number
+out is number
+output is number
+programText is text list
+program is number list
+
+procedure:
+
+load file "5.txt" in auxText
+split auxText by "," in programText
+
+for each auxText in programText do
+    trim auxText in auxText
+    store auxText in out
+    push out to program
+repeat
+
+while 0 is equal to 0 do
+    store program:pc in opcode
+    in pc solve pc + 1
+
+    while 0 is equal to 0 do  # Pad with 0
+        get length of opcode in out
+        if out is less than 5 then
+            in opcode join "0" opcode
+        else
+            break
+        end if
+    repeat
+
+    get character at 0 from opcode in mode2
+    get character at 1 from opcode in mode1
+    get character at 2 from opcode in mode0
+    substring opcode from 3 length 2 in opcode
+    if opcode is equal to "99" then
+        break
+    else if opcode is not equal to "03" then
+        if mode0 is equal to "0" then
+            store program:program:pc in inA
+        else
+            store program:pc in inA
+        end if
+        in pc solve pc + 1
+        if opcode is equal to "04" then
+            store inA in output
+        else
+            if mode1 is equal to "0" then
+                store program:program:pc in inB
+            else
+                store program:pc in inB
+            end if
+            in pc solve pc + 1
+            if opcode is equal to "01" then
+                in out solve inA + inB
+            else if opcode is equal to "02" then
+                in out solve inA * inB
+            else if opcode is equal to "05" then
+                if inA is not equal to 0 then
+                    store inB in pc
+                end if
+                continue
+            else if opcode is equal to "06" then
+                if inA is equal to 0 then
+                    store inB in pc
+                end if
+                continue
+            else if opcode is equal to "07" then
+                if inA is less than inB then
+                    store 1 in out
+                else
+                    store 0 in out
+                end if
+            else if opcode is equal to "08" then
+                if inA is equal to inB then
+                    store 1 in out
+                else
+                    store 0 in out
+                end if
+            end if
+            store out in program:program:pc
+            in pc solve pc + 1
+        end if
+    else  # 03
+        store 5 in program:program:pc
+        in pc solve pc + 1
+    end if
+repeat
+
+display output crlf
