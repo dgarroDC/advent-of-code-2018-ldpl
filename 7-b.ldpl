@@ -1,0 +1,204 @@
+data:
+
+auxText is text
+maxOutput is number
+programText is text list
+settings is number list
+auxNumber is number
+
+procedure:
+
+load file "7.txt" in auxText
+split auxText by "," in programText
+
+push 5 to settings
+push 6 to settings
+push 7 to settings
+push 8 to settings
+push 9 to settings
+
+call runPermutations with 0
+display maxOutput crlf
+
+sub runPermutations
+parameters:
+    ampNumber is number
+local data:
+    nextAmpNumber is number
+    i is number
+procedure:
+    in nextAmpNumber solve ampNumber + 1
+    for i from ampNumber to 5 step 1 do
+        store settings:ampNumber in auxNumber
+        store settings:i in settings:ampNumber
+        store auxNumber in settings:i
+        if ampNumber is equal to 4 then
+            call runLoop
+        else
+            call runPermutations with nextAmpNumber
+        end if
+        store settings:ampNumber in auxNumber
+        store settings:i in settings:ampNumber
+        store auxNumber in settings:i
+    repeat
+end sub
+
+sub runLoop
+local data:
+    programs is number list list
+    pcs is number list
+    buffers is number list list
+    inputCounts is number list
+    haltSignal is number
+procedure:
+    push list to programs
+    push list to programs
+    push list to programs
+    push list to programs
+    push list to programs
+    for each auxText in programText do
+        trim auxText in auxText
+        store auxText in auxNumber
+        push auxNumber to programs:0
+    repeat
+    copy programs:0 to programs:1
+    copy programs:0 to programs:2
+    copy programs:0 to programs:3
+    copy programs:0 to programs:4
+
+    push 0 to pcs
+    push 0 to pcs
+    push 0 to pcs
+    push 0 to pcs
+    push 0 to pcs
+
+    push list to buffers
+    push settings:0 to buffers:0
+    push 0 to buffers:0
+    push list to buffers
+    push settings:1 to buffers:1
+    push list to buffers
+    push settings:2 to buffers:2
+    push list to buffers
+    push settings:3 to buffers:3
+    push list to buffers
+    push settings:4 to buffers:4
+
+    push 0 to inputCounts
+    push 0 to inputCounts
+    push 0 to inputCounts
+    push 0 to inputCounts
+    push 0 to inputCounts
+
+    while 0 is equal to 0 do
+        call runProgram with programs:0 pcs:0 buffers:0 buffers:1 inputCounts:0 haltSignal
+        call runProgram with programs:1 pcs:1 buffers:1 buffers:2 inputCounts:1 haltSignal
+        call runProgram with programs:2 pcs:2 buffers:2 buffers:3 inputCounts:2 haltSignal
+        call runProgram with programs:3 pcs:3 buffers:3 buffers:4 inputCounts:3 haltSignal
+        call runProgram with programs:4 pcs:4 buffers:4 buffers:0 inputCounts:4 haltSignal
+        if haltSignal is equal to 1 then
+            break
+        end if
+    repeat
+
+    if buffers:0:inputCounts:0 is greater than maxOutput then
+        store buffers:0:inputCounts:0 in maxOutput
+    end if
+end sub
+
+sub runProgram
+parameters:
+    program is number list
+    pc is number
+    inputBuffer is number list
+    outputBuffer is number list
+    inputCount is number
+    haltSignal is number
+local data:
+    opcode is text
+    mode0 is text
+    mode1 is text
+    mode2 is text
+    inA is number
+    inB is number
+    out is number
+procedure:
+    while 0 is equal to 0 do
+        store program:pc in opcode
+        in pc solve pc + 1
+
+        while 0 is equal to 0 do  # Pad with 0
+            get length of opcode in out
+            if out is less than 5 then
+                in opcode join "0" opcode
+            else
+                break
+            end if
+        repeat
+
+        get character at 0 from opcode in mode2
+        get character at 1 from opcode in mode1
+        get character at 2 from opcode in mode0
+        substring opcode from 3 length 2 in opcode
+        if opcode is equal to "99" then
+            store 1 in haltSignal
+            return
+        else if opcode is not equal to "03" then
+            if mode0 is equal to "0" then
+                store program:program:pc in inA
+            else
+                store program:pc in inA
+            end if
+            in pc solve pc + 1
+            if opcode is equal to "04" then
+                push inA to outputBuffer
+            else
+                if mode1 is equal to "0" then
+                    store program:program:pc in inB
+                else
+                    store program:pc in inB
+                end if
+                in pc solve pc + 1
+                if opcode is equal to "01" then
+                    in out solve inA + inB
+                else if opcode is equal to "02" then
+                    in out solve inA * inB
+                else if opcode is equal to "05" then
+                    if inA is not equal to 0 then
+                        store inB in pc
+                    end if
+                    continue
+                else if opcode is equal to "06" then
+                    if inA is equal to 0 then
+                        store inB in pc
+                    end if
+                    continue
+                else if opcode is equal to "07" then
+                    if inA is less than inB then
+                        store 1 in out
+                    else
+                        store 0 in out
+                    end if
+                else if opcode is equal to "08" then
+                    if inA is equal to inB then
+                        store 1 in out
+                    else
+                        store 0 in out
+                    end if
+                end if
+                store out in program:program:pc
+                in pc solve pc + 1
+            end if
+        else  # 03
+            get length of inputBuffer in auxNumber
+            if inputCount is less than auxNumber then
+                store inputBuffer:inputCount in program:program:pc
+                in pc solve pc + 1
+                in inputCount solve inputCount + 1
+            else
+                in pc solve pc - 1
+                return
+            end if
+        end if
+    repeat
+end sub
