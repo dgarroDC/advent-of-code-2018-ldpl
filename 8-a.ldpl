@@ -1,0 +1,41 @@
+data:
+
+auxText is text
+digits is text list
+length is number
+width is number
+height is number
+size is number
+i is number
+mod is number
+counts is number map
+minCount0 is number
+result is number
+
+procedure:
+
+load file "8.txt" in auxText
+split auxText by "" in digits
+delete last element of digits
+
+store 25 in width
+store 6 in height
+in size solve width * height
+in minCount0 solve size + 1
+store minCount0 in counts:"0"
+
+get length of digits in length
+
+for i from 0 to length step 1 do
+    modulo i by size in mod
+    if mod is equal to 0 then
+        if counts:"0" is less than minCount0 then
+            store counts:"0" in minCount0
+            in result solve counts:"1" * counts:"2"
+        end if
+        clear counts
+    end if
+    in counts:digits:i solve counts:digits:i + 1
+repeat
+
+display result crlf

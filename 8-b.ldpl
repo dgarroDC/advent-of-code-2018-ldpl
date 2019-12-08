@@ -1,0 +1,54 @@
+data:
+
+auxText is text
+digits is text list
+length is number
+width is number
+height is number
+i is number
+w is number
+h is number
+mod is number
+layers is number list list list
+result is text list list
+
+procedure:
+
+load file "8.txt" in auxText
+split auxText by "" in digits
+delete last element of digits
+
+store 25 in width
+store 6 in height
+
+for h from 0 to height step 1 do
+    push list to result
+    for w from 0 to width step 1 do
+        push "X" to result:h
+    repeat
+repeat
+
+get length of digits in length
+
+store 0 in i
+while i is less than length do
+    for h from 0 to height step 1 do
+        for w from 0 to width step 1 do
+            if result:h:w is equal to "X" and digits:i is not equal to "2" then
+                if digits:i is equal to "0" then
+                    store " " in result:h:w
+                else
+                    store "■" in result:h:w
+                end if
+            end if
+            in i solve i + 1
+        repeat
+    repeat
+repeat
+
+for h from 0 to height step 1 do
+    for w from 0 to width step 1 do
+        display result:h:w
+    repeat
+    display crlf
+repeat
