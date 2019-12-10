@@ -1,0 +1,73 @@
+data:
+
+auxText is text
+auxNumber is number
+lines is text list
+characters is text list
+result is number
+width is number
+height is number
+x is number
+y is number
+asteroids is number list list
+asteroidCount is number
+i is number
+j is number
+k is number
+dir is number list
+otherDir is number list
+
+procedure:
+
+load file "10.txt" in auxText
+trim auxText in auxText
+split auxText by crlf in lines
+
+get length of lines in height
+
+for y from 0 to height step 1 do
+	trim lines:y in lines:y
+	get length of lines:y in width
+	split lines:y by "" in characters
+	for x from 0 to width step 1 do
+		if characters:x is equal to "#" then
+			push list to asteroids
+			push x to asteroids:asteroidCount
+			push y to asteroids:asteroidCount
+			display x "," y crlf
+			in asteroidCount solve asteroidCount + 1
+		end if
+	repeat
+repeat
+
+for i from 0 to asteroidCount step 1 do
+	for j from 0 to asteroidCount step 1 do
+		if i is equal to j then
+			continue
+		end if
+		call getDir asteroids:i asteroids:j dir
+		for k from 0 to asteroidCount step 1 do
+			call getDir asteroids:k asteroids:j otherDir
+			if dir:2 is equal to otherDir:2 and 
+		repeat
+	repeat
+repeat
+
+sub getDir
+parameters:
+	a0 is number list
+	a1 is number list
+	dir is number list
+local data:
+
+procedure:
+	clear dir
+	push 0 to dir
+	push 0 to dir
+	push 0 to dir
+	in dir:0 solve a0:0 - a1:0
+	in dir:1 solve a0:1 - a1:1
+	in dir:2 solve dir:0 / dir:1
+end sub
+
+display result crlf
