@@ -1,0 +1,185 @@
+# Precondition using previous part answer: Not full rotations before 200
+
+using package std-math
+
+data:
+
+auxText is text
+auxNumber is number
+lines is text list
+characters is text list
+result is number
+width is number
+height is number
+x is number
+y is number
+asteroids is number list list
+outcomingDirs is number list map list
+outcomingDirsOne is number list map
+asteroidCount is number
+i is number
+j is number
+dir is number list
+dirs is text list
+station is number
+dirText is text list
+nextDir is number list
+empty is number list
+dirDiv is number
+nextDirDiv is number
+quadrant0 is number
+quadrant1 is number
+boom is number map
+
+procedure:
+
+load file "10.txt" in auxText
+trim auxText in auxText
+split auxText by crlf in lines
+
+get length of lines in height
+
+for y from 0 to height step 1 do
+	trim lines:y in lines:y
+	get length of lines:y in width
+	split lines:y by "" in characters
+	for x from 0 to width step 1 do
+		if characters:x is equal to "#" then
+			push list to asteroids
+			push x to asteroids:asteroidCount
+			push y to asteroids:asteroidCount
+            push map to outcomingDirs
+			in asteroidCount solve asteroidCount + 1
+		end if
+	repeat
+repeat
+
+for i from 0 to asteroidCount step 1 do
+	for j from 0 to asteroidCount step 1 do
+        if i is not equal to j then
+    		call getDir with asteroids:j asteroids:i dir
+            in auxText join dir:0 "," dir:1
+            push j to outcomingDirs:i:auxText
+        end if
+	repeat
+repeat
+
+for i from 0 to asteroidCount step 1 do
+    get key count of outcomingDirs:i in auxNumber
+    if auxNumber is greater than result then
+        store i in station
+        store auxNumber in result
+    end if
+repeat
+
+push 0 to nextDir
+push 0 to nextDir
+get keys of outcomingDirs:station in dirs
+for i from 0 to 200 step 1 do
+    clear nextDir
+    for each auxText in dirs do
+        if boom:auxText is equal to 1 then
+            continue
+        end if
+        split auxText by "," in dirText
+        store dirText:0 in dir:0
+        store dirText:1 in dir:1
+        if nextDir is equal to empty then
+            copy dir to nextDir
+        else
+            call quadrant with dir quadrant0
+            call quadrant with nextDir quadrant1
+            if quadrant0 is less than quadrant1 then
+                copy dir to nextDir
+            else if quadrant0 is equal to quadrant1 then
+                in dirDiv solve dir:1 / dir:0
+                in nextDirDiv solve nextDir:1 / nextDir:0
+                if dirDiv is less than nextDirDiv then
+                        copy dir to nextDir
+                end if
+            end if
+        end if
+    repeat
+    in auxText join nextDir:0 "," nextDir:1
+    store 1 in boom:auxText
+repeat
+
+# Precondition by running to this point: Only one asteroid in direction 200
+copy asteroids:outcomingDirs:station:auxText:0 to dir
+in result solve dir:0 * 100 + dir:1
+display result crlf
+
+sub quadrant
+parameters:
+    dir is number list
+    quadrant is number
+procedure:
+    if dir:0 is equal to 0 then
+        if dir:1 is equal to -1 then
+            store 0.5 in quadrant
+        else # 1
+            store 2.5 in quadrant
+        end if
+    else
+        if dir:1 is equal to 0 then
+            if dir:0 is equal to 1 then
+                store 1.5 in quadrant
+            else # -1
+                store 3.5 in quadrant
+            end if
+        else
+            if dir:0 is greater than 0 then
+                if dir:1 is less than 0 then
+                    store 1 in quadrant
+                else
+                    store 2 in quadrant
+                end if
+            else
+                if dir:1 is greater than 0 then
+                    store 3 in quadrant
+                else
+                    store 4 in quadrant
+                end if
+            end if
+        end if
+    end if
+end sub
+
+sub getDir
+parameters:
+	a0 is number list
+	a1 is number list
+	dir is number list
+local data:
+    gcd is number
+procedure:
+	clear dir
+	push 0 to dir
+	push 0 to dir
+	in dir:0 solve a0:0 - a1:0
+	in dir:1 solve a0:1 - a1:1
+    call gcd with dir:0 dir:1 gcd
+    abs gcd
+    in dir:0 solve dir:0 / gcd
+    in dir:1 solve dir:1 / gcd
+end sub
+
+sub gcd
+parameters:
+    a is number
+    b is number
+    gcd is number
+local data:
+    aC is number
+    bC is number
+    aux is number
+procedure:
+    store a in aC
+    store b in bC
+    while bC is not equal to 0 do
+        store bC in aux
+        modulo aC by bC in bC
+        store aux in aC
+    repeat
+    store aC in gcd
+end sub

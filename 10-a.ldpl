@@ -1,3 +1,5 @@
+using package std-math
+
 data:
 
 auxText is text
@@ -10,12 +12,12 @@ height is number
 x is number
 y is number
 asteroids is number list list
+incomingDirs is number map list
+incomingDirsOne is number map
 asteroidCount is number
 i is number
 j is number
-k is number
 dir is number list
-otherDir is number list
 
 procedure:
 
@@ -34,7 +36,7 @@ for y from 0 to height step 1 do
 			push list to asteroids
 			push x to asteroids:asteroidCount
 			push y to asteroids:asteroidCount
-			display x "," y crlf
+            push map to incomingDirs
 			in asteroidCount solve asteroidCount + 1
 		end if
 	repeat
@@ -42,16 +44,22 @@ repeat
 
 for i from 0 to asteroidCount step 1 do
 	for j from 0 to asteroidCount step 1 do
-		if i is equal to j then
-			continue
-		end if
-		call getDir asteroids:i asteroids:j dir
-		for k from 0 to asteroidCount step 1 do
-			call getDir asteroids:k asteroids:j otherDir
-			if dir:2 is equal to otherDir:2 and 
-		repeat
+        if i is not equal to j then
+    		call getDir with asteroids:i asteroids:j dir
+            in auxText join dir:0 "," dir:1
+            store 1 in incomingDirs:j:auxText
+        end if
 	repeat
 repeat
+
+for each incomingDirsOne in incomingDirs do
+    get key count of incomingDirsOne in auxNumber
+    if auxNumber is greater than result then
+        store auxNumber in result
+    end if
+repeat
+
+display result crlf
 
 sub getDir
 parameters:
@@ -59,15 +67,35 @@ parameters:
 	a1 is number list
 	dir is number list
 local data:
-
+    gcd is number
 procedure:
 	clear dir
 	push 0 to dir
 	push 0 to dir
-	push 0 to dir
 	in dir:0 solve a0:0 - a1:0
 	in dir:1 solve a0:1 - a1:1
-	in dir:2 solve dir:0 / dir:1
+    call gcd with dir:0 dir:1 gcd
+    abs gcd
+    in dir:0 solve dir:0 / gcd
+    in dir:1 solve dir:1 / gcd
 end sub
 
-display result crlf
+sub gcd
+parameters:
+    a is number
+    b is number
+    gcd is number
+local data:
+    aC is number
+    bC is number
+    aux is number
+procedure:
+    store a in aC
+    store b in bC
+    while bC is not equal to 0 do
+        store bC in aux
+        modulo aC by bC in bC
+        store aux in aC
+    repeat
+    store aC in gcd
+end sub
