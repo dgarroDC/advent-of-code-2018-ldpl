@@ -1,0 +1,285 @@
+data:
+
+auxText is text
+programList is text list
+auxNumber is number
+program is text map
+pc is text
+inputBuffer is text list
+outputBuffer is text list
+inputCount is number
+relBase is text
+haltSignal is number
+i is number
+score is number
+minX is number
+maxX is number
+minY is number
+maxY is number
+x is number
+y is number
+tile is number
+grid is number map map
+joystick is text
+player is number
+ball is number
+
+procedure:
+
+load file "13.txt" in auxText
+split auxText by "," in programList
+
+store 0 in auxNumber
+for each auxText in programList do
+    trim auxText in auxText
+    store auxText in program:auxNumber
+    in auxNumber solve auxNumber + 1
+repeat
+
+store "0" in pc
+store "0" in relBase
+store "2" in program:0
+
+while haltSignal is equal to 0 do
+	call runProgram with program pc inputBuffer outputBuffer inputCount relBase haltSignal
+
+	get length of outputBuffer in auxNumber
+	while i is less than auxNumber do
+		store outputBuffer:i in x
+		in i solve i + 1
+		store outputBuffer:i in y
+		in i solve i + 1
+		store outputBuffer:i in tile
+		in i solve i + 1
+		if x is equal to -1 and y is equal to 0 then
+			store tile in score
+			continue
+		end if
+	    if x is less than minX then
+	        store x in minX
+	    else if x is greater than maxX then
+	        store x in maxX
+	    end if
+	    if y is less than minY then
+	        store y in minY
+	    else if y is greater than maxY then
+	        store y in maxY
+	    end if
+	    store tile in grid:x:y
+	repeat
+
+	for y from minY to maxY step 1 do
+	    for x from minX to maxX step 1 do
+	        store grid:x:y in tile
+	        if tile is equal to 0 then
+	        	# display " "
+	        else if tile is equal to 1 then
+	        	# display "■"
+	        else if tile is equal to 2 then
+	        	# display "□"
+	        else if tile is equal to 3 then
+	        	# display "="
+	        	store x in player
+	        else if tile is equal to 4 then
+	        	# display "O"
+	        	store x in ball
+	        end if
+	    repeat
+	    # display crlf
+	repeat
+	# display score crlf
+
+	if player is less than ball then
+		store "1" in joystick
+	else if player is greater than ball then
+		store "-1" in joystick
+	else
+		store "0" in joystick
+	end if
+	# accept joystick
+	push joystick to inputBuffer
+
+repeat
+
+display score crlf
+
+sub runProgram
+parameters:
+    program is text map
+    pc is text
+    inputBuffer is text list
+    outputBuffer is text list
+    inputCount is number
+    relBase is text
+    haltSignal is number
+local data:
+    opcode is text
+    mode0 is text
+    mode1 is text
+    mode2 is text
+    inA is text
+    inB is text
+    out is text
+    auxNumber is number
+procedure:
+    while 0 is equal to 0 do
+        store program:pc in opcode
+        if opcode is equal to "" then
+            store "0" in opcode
+        end if
+        call sumBig with pc "1" pc
+
+        while 0 is equal to 0 do  # Pad with 0
+            get length of opcode in auxNumber
+            if auxNumber is less than 5 then
+                in opcode join "0" opcode
+            else
+                break
+            end if
+        repeat
+
+        get character at 0 from opcode in mode2
+        get character at 1 from opcode in mode1
+        get character at 2 from opcode in mode0
+        substring opcode from 3 length 2 in opcode
+        if opcode is equal to "99" then
+            store 1 in haltSignal
+            return
+        else if opcode is not equal to "03" then
+            call readParameter with mode0 program pc relBase inA
+            call sumBig with pc "1" pc
+            if opcode is equal to "04" then
+                push inA to outputBuffer
+            else if opcode is equal to "09" then
+                call sumBig with relBase inA relBase
+            else
+                call readParameter with mode1 program pc relBase inB
+                call sumBig with pc "1" pc
+                if opcode is equal to "01" then
+                    call sumBig with inA inB out
+                else if opcode is equal to "02" then
+                    call mulBig with inA inB out
+                else if opcode is equal to "05" then
+                    if inA is not equal to "0" then
+                        store inB in pc
+                    end if
+                    continue
+                else if opcode is equal to "06" then
+                    if inA is equal to "0" then
+                        store inB in pc
+                    end if
+                    continue
+                else if opcode is equal to "07" then
+                    call lessBig with inA inB out
+                else if opcode is equal to "08" then
+                    if inA is equal to inB then
+                        store 1 in out
+                    else
+                        store 0 in out
+                    end if
+                end if
+                if program:pc is equal to "" then
+                    store 0 in program:pc
+                end if
+                call saveParameter with mode2 program pc relBase out
+                call sumBig with pc "1" pc
+            end if
+        else  # 03
+            get length of inputBuffer in auxNumber
+            if inputCount is less than auxNumber then
+                if program:pc is equal to "" then
+                    store 0 in program:pc
+                end if
+                call saveParameter with mode0 program pc relBase inputBuffer:inputCount
+                call sumBig with pc "1" pc
+                in inputCount solve inputCount + 1
+            else
+                call sumBig with pc "-1" pc
+                return
+            end if
+        end if
+    repeat
+end sub
+
+sub readParameter
+parameters:
+    mode is text
+    program is text map
+    pc is text
+    relBase is text
+    result is text
+procedure:
+    if mode is equal to "0" then
+        call readParameter with "2" program pc "0" result
+    else if mode is equal to "1" then
+        store program:pc in result
+    else
+        call readParameter with "1" program pc relBase result
+        call sumBig with result relBase result
+        store program:result in result
+    end if
+    if result is equal to "" then
+        store "0" in result
+    end if
+end sub
+
+sub saveParameter
+parameters:
+    mode is text
+    program is text map
+    pc is text
+    relBase is text
+    save is text
+local data:
+    result is text
+procedure:
+    if mode is equal to "0" then
+        call saveParameter with "2" program pc "0" save
+    else
+        call readParameter with "1" program pc relBase result
+        call sumBig with result relBase result
+        store save in program:result
+    end if
+end sub
+
+sub sumBig
+parameters:
+    a is text
+    b is text
+    res is text
+local data:
+	resNum is number
+procedure:
+    in resNum solve a + b
+    store resNum in res
+end sub
+
+sub mulBig
+parameters:
+    a is text
+    b is text
+    res is text
+local data:
+	resNum is number
+procedure:
+    in resNum solve a * b
+    store resNum in res
+end sub
+
+sub lessBig
+parameters:
+    a is text
+    b is text
+    res is text
+local data:
+	aNum is number
+	bNum is number
+procedure:
+	store a in aNum
+	store b in bNum
+    if aNum is less than bNum then
+    	store "1" in res
+    else
+    	store "0" in res
+    end if
+end sub
