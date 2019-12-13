@@ -1,0 +1,277 @@
+data:
+
+auxText is text
+programList is text list
+auxNumber is number
+program is text map
+pc is text
+inputBuffer is text list
+outputBuffer is text list
+inputCount is number
+relBase is text
+haltSignal is number
+pos is number list
+paint is text map
+deltas is number list list
+dir is number
+minX is number
+maxX is number
+minY is number
+maxY is number
+x is number
+y is number
+
+procedure:
+
+load file "11.txt" in auxText
+split auxText by "," in programList
+
+store 0 in auxNumber
+for each auxText in programList do
+    trim auxText in auxText
+    store auxText in program:auxNumber
+    in auxNumber solve auxNumber + 1
+repeat
+
+store "0" in pc
+store "0" in relBase
+
+push 0 to pos
+push 0 to pos
+
+push list to deltas
+push list to deltas
+push list to deltas
+push list to deltas
+push 0 to deltas:0
+push -1 to deltas:0
+push 1 to deltas:1
+push 0 to deltas:1
+push 0 to deltas:2
+push 1 to deltas:2
+push -1 to deltas:3
+push 0 to deltas:3
+
+while haltSignal is equal to 0 do
+    in auxText join pos:0 "," pos:1
+    if paint:auxText is equal to "0" then
+        push "0" to inputBuffer
+    else
+        push "1" to inputBuffer
+    end if
+    clear outputBuffer
+    call runProgram with program pc inputBuffer outputBuffer inputCount relBase haltSignal
+    store outputBuffer:0 in paint:auxText
+    if outputBuffer:1 is equal to "0" then
+        if dir is equal to 0 then
+            store 3 in dir
+        else
+            in dir solve dir - 1
+        end if
+    else
+        if dir is equal to 3 then
+            store 0 in dir
+        else
+            in dir solve dir + 1
+        end if
+    end if
+    in pos:0 solve pos:0 + deltas:dir:0
+    in pos:1 solve pos:1 + deltas:dir:1
+    if pos:0 is less than minX then
+        store pos:0 in minX
+    else if pos:0 is greater than maxX then
+        store pos:0 in maxX
+    end if
+    if pos:1 is less than minY then
+        store pos:1 in minY
+    else if pos:1 is greater than maxY then
+        store pos:1 in maxY
+    end if
+repeat
+
+in maxX solve maxX + 1
+in maxY solve maxY + 1
+
+for y from minY to maxY step 1 do
+    for x from minX to maxX step 1 do
+            in auxText join x "," y
+            if paint:auxText is equal to "1" then
+                display "■"
+            else
+                display " "
+            end if
+    repeat
+    display crlf
+repeat
+
+sub runProgram
+parameters:
+    program is text map
+    pc is text
+    inputBuffer is text list
+    outputBuffer is text list
+    inputCount is number
+    relBase is text
+    haltSignal is number
+local data:
+    opcode is text
+    mode0 is text
+    mode1 is text
+    mode2 is text
+    inA is text
+    inB is text
+    out is text
+    auxNumber is number
+procedure:
+    while 0 is equal to 0 do
+        store program:pc in opcode
+        if opcode is equal to "" then
+            store "0" in opcode
+        end if
+        call sumBig with pc "1" pc
+
+        while 0 is equal to 0 do  # Pad with 0
+            get length of opcode in auxNumber
+            if auxNumber is less than 5 then
+                in opcode join "0" opcode
+            else
+                break
+            end if
+        repeat
+
+        get character at 0 from opcode in mode2
+        get character at 1 from opcode in mode1
+        get character at 2 from opcode in mode0
+        substring opcode from 3 length 2 in opcode
+        if opcode is equal to "99" then
+            store 1 in haltSignal
+            return
+        else if opcode is not equal to "03" then
+            call readParameter with mode0 program pc relBase inA
+            call sumBig with pc "1" pc
+            if opcode is equal to "04" then
+                push inA to outputBuffer
+            else if opcode is equal to "09" then
+                call sumBig with relBase inA relBase
+            else
+                call readParameter with mode1 program pc relBase inB
+                call sumBig with pc "1" pc
+                if opcode is equal to "01" then
+                    call sumBig with inA inB out
+                else if opcode is equal to "02" then
+                    call mulBig with inA inB out
+                else if opcode is equal to "05" then
+                    if inA is not equal to "0" then
+                        store inB in pc
+                    end if
+                    continue
+                else if opcode is equal to "06" then
+                    if inA is equal to "0" then
+                        store inB in pc
+                    end if
+                    continue
+                else if opcode is equal to "07" then
+                    call lessBig with inA inB out
+                else if opcode is equal to "08" then
+                    if inA is equal to inB then
+                        store 1 in out
+                    else
+                        store 0 in out
+                    end if
+                end if
+                if program:pc is equal to "" then
+                    store 0 in program:pc
+                end if
+                call saveParameter with mode2 program pc relBase out
+                call sumBig with pc "1" pc
+            end if
+        else  # 03
+            get length of inputBuffer in auxNumber
+            if inputCount is less than auxNumber then
+                if program:pc is equal to "" then
+                    store 0 in program:pc
+                end if
+                call saveParameter with mode0 program pc relBase inputBuffer:inputCount
+                call sumBig with pc "1" pc
+                in inputCount solve inputCount + 1
+            else
+                call sumBig with pc "-1" pc
+                return
+            end if
+        end if
+    repeat
+end sub
+
+sub readParameter
+parameters:
+    mode is text
+    program is text map
+    pc is text
+    relBase is text
+    result is text
+procedure:
+    if mode is equal to "0" then
+        call readParameter with "2" program pc "0" result
+    else if mode is equal to "1" then
+        store program:pc in result
+    else
+        call readParameter with "1" program pc relBase result
+        call sumBig with result relBase result
+        store program:result in result
+    end if
+    if result is equal to "" then
+        store "0" in result
+    end if
+end sub
+
+sub saveParameter
+parameters:
+    mode is text
+    program is text map
+    pc is text
+    relBase is text
+    save is text
+local data:
+    result is text
+procedure:
+    if mode is equal to "0" then
+        call saveParameter with "2" program pc "0" save
+    else
+        call readParameter with "1" program pc relBase result
+        call sumBig with result relBase result
+        store save in program:result
+    end if
+end sub
+
+sub sumBig
+parameters:
+    a is text
+    b is text
+    res is text
+procedure:
+    in res join "echo \"$((" a "+" b "))\""
+    execute res and store output in res
+    trim res in res
+end sub
+
+sub mulBig
+parameters:
+    a is text
+    b is text
+    res is text
+procedure:
+    in res join "echo \"$((" a "*" b "))\""
+    execute res and store output in res
+    trim res in res
+end sub
+
+sub lessBig
+parameters:
+    a is text
+    b is text
+    res is text
+procedure:
+    in res join "echo \"$((" a "<" b "))\""
+    execute res and store output in res
+    trim res in res
+end sub
