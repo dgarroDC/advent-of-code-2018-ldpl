@@ -1,0 +1,130 @@
+using package std-math
+
+data:
+
+auxText is text
+auxNumber is number
+i is number
+j is number
+k is number
+lines is text list
+splitA is text list
+splitB is text list
+moons is number
+positions is number list list
+velocities is number list list
+steps is number list
+posIni is number list
+velIni is number list
+result is number
+procedure:
+
+load file "12.txt" in auxText
+trim auxText in auxText
+split auxText by crlf in lines
+
+get length of lines in moons
+
+for i from 0 to moons step 1 do
+    push list to positions
+    store lines:i in auxText
+    split auxText by "=" in splitA
+    split splitA:1 by "," in splitB
+    store splitB:0 in auxNumber
+    push auxNumber to positions:i
+    split splitA:2 by "," in splitB
+    store splitB:0 in auxNumber
+    push auxNumber to positions:i
+    split splitA:3 by ">" in splitB
+    store splitB:0 in auxNumber
+    push auxNumber to positions:i
+
+    push list to velocities
+    push 0 to velocities:i
+    push 0 to velocities:i
+    push 0 to velocities:i
+repeat
+
+
+
+for i from 0 to 3 step 1 do
+    push 0 to steps
+    clear posIni
+    clear velIni
+    for j from 0 to moons step 1 do
+        push positions:j:i to posIni
+        push velocities:j:i to velIni
+    repeat
+    store 0 in result
+    while result is equal to 0 do
+        for j from 0 to moons step 1 do
+            for k from 0 to moons step 1 do
+                call gravity with positions:j:i positions:k:i velocities:j:i
+            repeat
+        repeat
+        for j from 0 to moons step 1 do
+            in positions:j:i solve positions:j:i + velocities:j:i
+        repeat
+        incr steps:i
+        store 1 in result
+        for j from 0 to moons step 1 do
+            if positions:j:i is not equal to posIni:j or velocities:j:i is not equal to velIni:j then
+                store 0 in result
+                break
+            end if
+        repeat
+    repeat
+repeat
+
+call lcm with steps:0 steps:1 result
+call lcm with result steps:2 result
+display result crlf
+
+sub gravity
+parameters:
+    posA is number
+    posB is number
+    velA is number
+procedure:
+    if posA is less than posB then
+        in velA solve velA + 1
+    else if posA is greater than posB then
+        in velA solve velA - 1
+    end if
+end sub
+
+sub gcd
+parameters:
+    a is number
+    b is number
+    gcd is number
+local data:
+    aC is number
+    bC is number
+    aux is number
+procedure:
+    store a in aC
+    store b in bC
+    while bC is not equal to 0 do
+        store bC in aux
+        # modulo aC by bC in bC
+        in auxText join "echo \"$((" aC "%" bC "))\""
+        execute auxText and store output in auxText
+        trim auxText in auxText
+        store auxText in bC
+        store aux in aC
+    repeat
+    store aC in gcd
+end sub
+
+sub lcm
+parameters:
+    a is number
+    b is number
+    lcm is number
+local data:
+    gcd is number
+procedure:
+    call gcd with a b gcd
+    in lcm solve (a * b) / gcd
+end sub
