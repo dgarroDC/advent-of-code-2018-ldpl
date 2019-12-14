@@ -1,0 +1,93 @@
+using package std-math
+
+data:
+
+auxText is text
+auxNumber is number
+lines is text list
+splitA is text list
+splitB is text list
+reactions is number map map
+needed is number map
+output is text
+chemicals is text list
+low is number
+mid is number
+high is number
+
+procedure:
+
+load file "14.txt" in auxText
+trim auxText in auxText
+split auxText by crlf in lines
+
+for each auxText in lines do
+    split auxText by " => " in splitA
+
+    split splitA:1 by " " in splitB
+    store splitB:1 in output
+    store splitB:0 in reactions:output:""
+
+    split splitA:0 by ", " in splitB
+    for each auxText in splitB do
+        split auxText by " " in splitA
+        store splitA:0 in reactions:output:splitA:1
+    repeat
+repeat
+
+get keys of reactions in chemicals
+
+store 0 in low
+store 1000000000000 in high
+
+store 2 in auxNumber
+while auxNumber is greater than 1 do
+    in mid solve (high - low) / 2
+    floor mid
+    in mid solve low + mid
+
+    clear needed
+    store mid in needed:"FUEL"
+    store 0 in auxNumber
+    while auxNumber is equal to 0 do
+        store 1 in auxNumber
+        for each auxText in chemicals do
+            if needed:auxText is greater than 0 then
+                call produce with auxText
+                store 0 in auxNumber
+            end if
+        repeat
+    repeat
+
+    if needed:"ORE" is greater than 1000000000000 then
+        store mid in high
+    else
+        store mid in low
+    end if
+
+    in auxNumber solve high - low
+repeat
+
+display low crlf
+
+sub produce
+    parameters:
+        output is text
+    local data:
+        quantity is number
+        productions is number
+        reaction is number map
+        inputs is text list
+        input is text
+    procedure:
+        store needed:output in quantity
+        copy reactions:output to reaction
+        in productions solve quantity / reaction:""
+        ceil productions
+
+        get keys of reaction in inputs
+        for each input in inputs do
+            in needed:input solve needed:input + reaction:input * productions
+        repeat
+        in needed:output solve needed:output - reaction:"" * productions
+end sub
