@@ -1,0 +1,50 @@
+using package std-math
+
+data:
+
+auxText is text
+auxNumber is number
+seq is text list
+newSeq is text list
+phase is number
+pattern is number list
+length is number
+newDigit is number
+digitA is number
+digitB is number
+
+procedure:
+
+load file "16.txt" in auxText
+trim auxText in auxText
+split auxText by "" in seq
+
+get length of seq in length
+
+push 0 to pattern
+push 1 to pattern
+push 0 to pattern
+push -1 to pattern
+
+for phase from 0 to 100 step 1 do
+    clear newSeq
+    for digitA from 0 to length step 1 do
+        store 0 in newDigit
+        for digitB from 0 to length step 1 do
+            in auxNumber solve (digitB + 1) / (digitA + 1)
+            floor auxNumber
+            modulo auxNumber by 4 in auxNumber
+            in newDigit solve newDigit + seq:digitB * pattern:auxNumber
+        repeat
+        abs newDigit
+        modulo newDigit by 10 in newDigit
+        store newDigit in auxText
+        push auxText to newSeq
+    repeat
+    copy newSeq to seq
+repeat
+
+for digitA from 0 to 8 step 1 do
+    display seq:digitA
+repeat
+display crlf

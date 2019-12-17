@@ -1,0 +1,47 @@
+using package std-list
+
+data:
+
+auxText is text
+auxNumber is number
+offset is number
+seqText is text list
+seq is number list
+phase is number
+length is number
+lengthFull is number
+newDigit is number
+digit is number
+
+procedure:
+
+load file "16.txt" in auxText
+trim auxText in auxText
+split auxText by "" in seqText
+substring auxText from 0 length 7 in auxText
+store auxText in offset
+
+get length of seqText in length
+in lengthFull solve 10000 * length
+for digit from offset to lengthFull step 1 do
+    modulo digit by length in auxNumber
+    store seqText:auxNumber in auxNumber
+    push auxNumber to seq
+repeat
+
+get length of seq in length
+in length solve length - 1
+
+for phase from 0 to 100 step 1 do
+    store 0 in newDigit
+    for digit from length to -1 step -1 do
+        in newDigit solve newDigit + seq:digit
+        modulo newDigit by 10 in newDigit
+        store newDigit in seq:digit
+    repeat
+repeat
+
+for digit from 0 to 8 step 1 do
+    display seq:digit
+repeat
+display crlf
