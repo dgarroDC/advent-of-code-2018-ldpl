@@ -1,0 +1,198 @@
+using package std-list
+
+data:
+
+auxText is text
+lines is text list
+map is text list list
+length is number
+deltas is number list list
+x is number
+y is number
+maxX is number
+maxY is number
+iniX is number
+iniY is number
+door is text
+key is text
+doorOf is text map
+keyOf is text map
+keys is number map
+allKeys is text list
+mem is text map
+result is number 
+
+#d is number
+#dX is number
+#dY is number
+#nodes is number
+#edges is number
+
+procedure:
+
+load file "18.txt" in auxText
+trim auxText in auxText
+split auxText by crlf in lines
+
+for each auxText in lines do
+    push list to map
+    split auxText by "" in map:length
+    in length solve length + 1
+repeat
+
+store length in maxY
+get length of map:0 in maxX
+
+push list to deltas
+push list to deltas
+push list to deltas
+push list to deltas
+push list to deltas
+push 0 to deltas:0
+push -1 to deltas:0
+push 1 to deltas:1
+push 0 to deltas:1
+push 0 to deltas:2
+push 1 to deltas:2
+push -1 to deltas:3
+push 0 to deltas:3
+
+# I used this to see if there is a cycle
+# There are cyles only because of the initial 3x3 room,
+# Maybe I can ignore it...
+#store 0 in length
+#for x from 0 to maxX step 1 do
+#    for y from 0 to maxY step 1 do
+#        if map:x:y is not equal to "#" then
+#            #push list to nodes
+#            #push x to nodes:length
+#            #push y to nodes:length
+#            in nodes solve nodes + 1
+#            for d from 0 to 4 step 1 do
+#                in dX solve x + deltas:d:0
+#                in dY solve y + deltas:d:1
+#                if map:dX:dY is not equal to "#" then
+#                    in edges solve edges + 1
+#                end if
+#            repeat
+#        end if
+#    repeat
+#repeat
+#in edges solve edges / 2
+#display nodes crlf edges crlf
+
+for x from 0 to maxX step 1 do
+    for y from 0 to maxY step 1 do
+        if map:x:y is equal to "@" then
+            store x in iniX
+            store y in iniY
+            goto continue
+        end if
+    repeat
+repeat
+
+label continue
+
+for x from 65 to 91 step 1 do
+    in y solve x + 32
+    get ascii character x in door
+    get ascii character y in key
+    store door in doorOf:key
+    store key in keyOf:door
+    push key to allKeys
+repeat
+
+call xxx with iniX iniY keys result
+display result crlf
+
+sub xxx
+parameters:
+    x is number
+    y is number
+    keys is number map
+    result is number
+local data:
+    key is text
+    ks is text list
+    newKeys is number list map
+    newRes is number
+    memKey is text
+procedure:
+    in memKey join x "," y
+    for each key in allKeys do
+        if keys:key is equal to 1 then
+            in memKey join memKey key
+        end if
+    repeat
+    if mem:memKey is not equal to "" then
+        store mem:memKey in result
+        return
+    end if
+
+    call findKeys with x y keys newKeys
+    store 0 in result
+    get keys of newKeys in ks
+    for each key in ks do
+        store 1 in keys:key
+        call xxx with newKeys:key:0 newKeys:key:1 keys newRes
+        store 0 in keys:key
+        in newRes solve newRes + newKeys:key:0
+        if result is equal to 0 or newRes is less than result then
+            store newRes in result
+        end if
+    repeat
+
+    store result in mem:memKey
+end sub
+
+sub findKeys
+parameters:
+    cX is number
+    cY is number
+    keys is number map
+    res is number list map
+local data:
+    x is number
+    y is number
+    d is number
+    dX is number
+    dY is number
+    visited is number map map
+    xs is number list
+    ys is number list
+    used is number
+    cell is text
+    steps is number
+    stepss is number list
+procedure:
+    push cX to xs
+    push cY to ys
+    push -1 to stepss
+    while 0 is equal to 0 do
+        store xs:used in x
+        store ys:used in y
+        in steps solve stepss:used + 1
+        store 1 in visited:x:y
+        store map:x:y in cell
+        if keys:cell is equal to 0 and doorOf:cell is not equal to "" then
+            push x to res:cell
+            push y to res:cell
+            push steps to res:cell
+        end if
+        for d from 0 to 4 step 1 do
+            in dX solve x + deltas:d:0
+            in dY solve y + deltas:d:1
+            store map:dX:dY in cell
+            if visited:dX:dy is not equal to 1 and cell is not equal to "#" and ( keyOf:cell is equal to "" or keys:keyOf:cell is equal to 1 ) then
+               push dX to xs
+               push dY to ys
+               push steps to stepss
+            end if
+        repeat
+        in used solve used + 1
+        get length of xs in x
+        if used is greater than or equal to x then
+            return
+        end if
+    repeat
+end sub
