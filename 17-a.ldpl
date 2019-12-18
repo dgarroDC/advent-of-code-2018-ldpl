@@ -51,14 +51,12 @@ for each output in outputBuffer do
     if output is equal to "10" then
         in y solve y + 1
         store 0 in x
-        display crlf
     else
         store output in auxNumber
         get ascii character auxNumber in auxText
         store auxText in image:x:y
         in x solve x + 1
         store x in maxX
-        display auxText
     end if
 repeat
 
