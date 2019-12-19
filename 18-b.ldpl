@@ -1,5 +1,3 @@
-#*10104#1933
-
 data:
 
 auxText is text
@@ -13,6 +11,7 @@ maxX is number
 maxY is number
 iniX is number
 iniY is number
+bots is number list list
 door is text
 key is text
 doorOf is text map
@@ -25,7 +24,7 @@ reqs is number map map
 req is number map
 visited is number map map
 mem is text map
-result is number
+result is number 
 
 procedure:
 
@@ -70,34 +69,81 @@ for x from 0 to maxX step 1 do
         if map:y:x is equal to "@" then
             store x in iniX
             store y in iniY
-            call getDist with x y
         else if doorOf:map:y:x is not equal to "" then
             push x to keysPos:map:y:x
             push y to keysPos:map:y:x
-            call getDist with x y
         end if
     repeat
 repeat
 
 call getReq with iniX iniY
 
-call xxx with iniX iniY keys result
+store "#" in map:iniY:iniX
+in x solve iniX - 1
+store "#" in map:iniY:x
+in x solve iniX + 1
+store "#" in map:iniY:x
+in y solve iniY - 1
+store "#" in map:y:iniX
+in y solve iniY + 1
+store "#" in map:y:iniX
+
+push list to bots
+push 0 to bots:0
+in bots:0:0 solve iniX - 1
+push 0 to bots:0
+in bots:0:1 solve iniY - 1
+store "0" in map:bots:0:1:bots:0:0
+call getDist with bots:0:0 bots:0:1
+
+push list to bots
+push 0 to bots:1
+in bots:1:0 solve iniX + 1
+push 0 to bots:1
+in bots:1:1 solve iniY - 1
+store "1" in map:bots:1:1:bots:1:0
+call getDist with bots:1:0 bots:1:1
+
+push list to bots
+push 0 to bots:2
+in bots:2:0 solve iniX - 1
+push 0 to bots:2
+in bots:2:1 solve iniY + 1
+store "2" in map:bots:2:1:bots:2:0
+call getDist with bots:2:0 bots:2:1
+
+push list to bots
+push 0 to bots:3
+in bots:3:0 solve iniX + 1
+push 0 to bots:3
+in bots:3:1 solve iniY + 1
+store "3" in map:bots:3:1:bots:3:0
+call getDist with bots:3:0 bots:3:1
+
+for each key in allKeys do
+    call getDist with keysPos:key:0 keysPos:key:1
+repeat
+
+call xxx with bots keys result
 display result crlf
 
 sub xxx
 parameters:
-    x is number
-    y is number
+    bots is number list list
     keys is number map
     result is number
 local data:
+    x is number
+    y is number
+    bot is number
+    newBots is number list list
     from is text
     key is text
     key2 is text
     newRes is number
     memKey is text
 procedure:
-    in memKey join x "," y
+    in memKey join bots:0:0 "," bots:0:1 "," bots:1:0 "," bots:1:1 "," bots:2:0 "," bots:2:1 "," bots:3:0 "," bots:3:1
     for each key in allKeys do
         if keys:key is equal to 1 then
             in memKey join memKey key
@@ -108,7 +154,6 @@ procedure:
         return
     end if
 
-    store map:y:x in from
     store 0 in result
     for each key in allKeys do
         if keys:key is equal to 0 then
@@ -117,8 +162,19 @@ procedure:
                     goto continue
                 end if
             repeat
+
+            copy bots to newBots
+            for bot from 0 to 4 step 1 do
+                if dist:bot:key is greater than 0 then
+                    copy keysPos:key to newBots:bot
+                    store bots:bot:0 in x
+                    store bots:bot:1 in y
+                    store map:y:x in from
+                end if
+            repeat
+
             store 1 in keys:key
-            call xxx with keysPos:key:0 keysPos:key:1 keys newRes
+            call xxx with newBots keys newRes
             store 0 in keys:key
             in newRes solve newRes + dist:from:key
             if result is equal to 0 or newRes is less than result then
@@ -161,7 +217,7 @@ procedure:
         in steps solve stepss:used + 1
         store 1 in visited:y:x
         store map:y:x in cell
-        if cell is equal to "@" or doorOf:cell is not equal to "" then
+        if cell is not equal to "." then
             store steps in dist:from:cell
         end if
         for d from 0 to 4 step 1 do
