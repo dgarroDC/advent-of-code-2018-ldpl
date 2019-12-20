@@ -1,0 +1,164 @@
+data:
+
+auxText is text
+lines is text list
+length is number
+map is text list list
+deltas is number list list
+back is number list
+d is number
+d2 is number
+x is number
+y is number
+dx is number
+dy is number
+dx2 is number
+dy2 is number
+maxX is number
+maxY is number
+iniX is number
+iniY is number
+finX is number
+finY is number
+portal is number list map
+empty is number list
+port is number list map map
+visited is number map map map
+xs is number list
+ys is number list
+used is number
+steps is number
+stepss is number list
+level is number
+levels is number list
+dlevel is number map map
+nlevel is number
+ox is number
+oy is number
+
+procedure:
+
+load file "20.txt" in auxText
+split auxText by crlf in lines
+delete last element of lines
+
+for each auxText in lines do
+    push list to map
+    split auxText by "" in map:length
+    in length solve length + 1
+repeat
+
+store length in maxY
+get length of map:0 in maxX
+
+push list to deltas
+push list to deltas
+push list to deltas
+push list to deltas
+push 0 to deltas:0
+push -1 to deltas:0
+push 1 to deltas:1
+push 0 to deltas:1
+push 0 to deltas:2
+push 1 to deltas:2
+push -1 to deltas:3
+push 0 to deltas:3
+
+push 2 to back
+push 3 to back
+push 0 to back
+push 1 to back
+
+in ox solve maxX - 3
+in oy solve maxY - 3
+in maxX solve maxX - 1
+in maxY solve maxY - 1
+for y from 1 to maxY step 1 do
+    for x from 1 to maxX step 1 do
+        if map:y:x is not equal to " " and map:y:x is not equal to "." and map:y:x is not equal to "#" then
+        	for d from 0 to 4 step 1 do
+        		in dx solve x + deltas:d:0
+        		in dy solve y + deltas:d:1
+        		if map:dy:dx is equal to "." then
+        			store back:d in d2
+        			in dx2 solve x + deltas:d2:0
+        			in dy2 solve y + deltas:d2:1
+        			if dx2 is less than x or dy2 is less than y then
+        				in auxText join map:dy2:dx2 map:y:x
+        			else
+        				in auxText join map:y:x map:dy2:dx2
+        			end if
+        			if auxText is equal to "AA" then
+        				store dx in inix
+        				store dy in iniy
+        			else if auxText is equal to "ZZ" then
+        				store dx in finx
+        				store dy in finy
+        			else
+                        if dx is equal to 2 or dy is equal to 2 or dx is equal to ox or dy is equal to oy then
+                            store -1 in dlevel:dy:dx
+                        else
+                            store 1 in dlevel:dy:dx
+                        end if
+        				if portal:auxText is equal to empty then
+        					push dx to portal:auxText
+        					push dy to portal:auxText
+        				else
+        					store portal:auxText:0 in dx2
+        					store portal:auxText:1 in dy2
+        					push dx to port:dy2:dx2
+        					push dy to port:dy2:dx2
+        					push dx2 to port:dy:dx
+        					push dy2 to port:dy:dx
+        				end if
+        			end if
+        			break
+        		end if
+        	repeat
+        end if
+    repeat
+repeat
+
+push inix to xs
+push iniy to ys
+push -1 to stepss
+push 0 to levels
+while 0 is equal to 0 do
+	store xs:used in x
+	store ys:used in y
+	in steps solve stepss:used + 1
+    store levels:used in level
+	store 1 in visited:y:x:level
+	if level is equal to 0 and x is equal to finx and y is equal to finy then
+		display steps crlf
+		exit
+	end if
+	for d from 0 to 4 step 1 do
+
+        in dX solve x + deltas:d:0
+        in dY solve y + deltas:d:1
+
+        if map:dy:dx is not equal to "#" then
+            store level in nlevel
+        	if map:dy:dx is not equal to "." then
+                if x is equal to inix and y is equal to iniy or x is equal to finx and y is equal to finy then
+                    continue
+                end if
+                if level is equal to 0 and dlevel:y:x is equal to -1 then
+                    continue
+                end if
+				store port:y:x:0 in dx
+				store port:y:x:1 in dy
+                in nlevel solve level + dlevel:y:x
+			end if
+            if visited:dY:dX:nlevel is equal to 1 then
+                continue
+            end if
+			push dX to xs
+			push dY to ys
+			push steps to stepss
+            push nlevel to levels
+        end if
+    repeat
+    in used solve used + 1
+repeat
