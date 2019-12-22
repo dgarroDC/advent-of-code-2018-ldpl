@@ -1,0 +1,35 @@
+data:
+
+auxText is text
+lines is text list
+words is text list
+length is number
+N is number
+result is number
+
+procedure:
+
+load file "22.txt" in auxText
+trim auxText in auxText
+split auxText by crlf in lines
+
+store 2019 in result
+for each auxText in lines do
+    if auxText is equal to "deal into new stack" then
+        in result solve 10006 - result
+    else
+        split auxText by " " in words
+        get length of words in length
+        in length solve length - 1
+        store words:length in N
+        if length is equal to 1 then
+            in result solve result - N
+            modulo result by 10007 in result
+        else
+            in result solve result * N
+            modulo result by 10007 in result
+        end if
+    end if
+repeat
+
+display result crlf

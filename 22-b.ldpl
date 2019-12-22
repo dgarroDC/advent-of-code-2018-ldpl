@@ -1,0 +1,129 @@
+data:
+
+auxText is text
+lines is text list
+words is text list
+length is number
+N is number
+result is number
+a is number
+b is number
+pow is number
+cards is number
+inv is number
+
+procedure:
+
+load file "22.txt" in auxText
+trim auxText in auxText
+split auxText by crlf in lines
+
+store 1 in a
+store 119315717514047 in cards
+
+for each auxText in lines do
+    if auxText is equal to "deal into new stack" then
+        in a solve a * -1
+        in b solve cards - 1 - b
+        modulo a by cards in a
+    else
+        split auxText by " " in words
+        get length of words in length
+        in length solve length - 1
+        store words:length in N
+        if length is equal to 1 then
+            in b solve cards + b - N
+            modulo b by cards in b
+        else
+            call mulMod with a N cards a
+            call mulMod with b N cards b
+        end if
+    end if
+repeat
+
+call powMod with a 101741582076661 cards pow
+
+in a solve a - 1
+call invMod with a cards inv
+in a solve a + 1
+
+in pow solve pow - 1
+call mulMod with pow inv cards result
+in pow solve pow + 1
+call mulMod with b result cards result
+
+in result solve 2020 - result
+modulo result by cards in result
+
+call invMod with pow cards inv
+call mulMod with result inv cards result
+display result crlf
+
+sub mulMod
+parameters:
+    a is number
+    b is number
+    m is number
+    result is number
+local data:
+    a2 is number
+    b2 is number
+    b2f is number
+    result2 is number
+procedure:
+    store a in a2
+    store b in b2
+    store 0 in result2
+    while b2 is greater than 0 do
+        in b2f solve b2 / 2
+        store b2f in b2
+        floor b2
+        if b2 is not equal to b2f then
+            in result2 solve result2 + a2
+            modulo result2 by m in result2
+        end if
+        in a2 solve 2 * a2
+        modulo a2 by cards in a2
+    repeat
+    store result2 in result
+end sub
+
+sub powMod
+parameters:
+    a is number
+    b is number
+    m is number
+    result is number
+local data:
+    a2 is number
+    b2 is number
+    b2f is number
+procedure:
+    if b is equal to 1 then
+        store a in result
+        return
+    end if
+    store b in b2
+    in b2f solve b2 / 2
+    store b2f in b2
+    floor b2
+    call mulMod with a a m a2
+    call powMod with a2 b2 m result
+    if b2 is not equal to b2f then
+        call mulMod with a result m result
+    end if
+end sub
+
+sub invMod
+parameters:
+    a is number
+    m is number
+    result is number
+local data:
+    m2 is number
+    result2 is number
+procedure:
+    in m2 solve m - 2
+    call powMod with a m2 m result2
+    store result2 in result
+end sub
