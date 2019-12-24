@@ -1,0 +1,220 @@
+data:
+
+auxText is text
+programList is text list
+auxNumber is number
+program is number map
+outputBuffer is number list
+length is number
+address is number
+x is number
+y is number
+programs is number map list
+pcs is number list
+inputBuffers is number list list
+inputCounts is number list
+relBases is number list
+p is number
+i is number
+natx is number
+naty is number
+last is number
+idle is number
+
+procedure:
+
+load file "23.txt" in auxText
+split auxText by "," in programList
+
+store 0 in auxNumber
+for each auxText in programList do
+    trim auxText in auxText
+    store auxText in program:auxNumber
+    in auxNumber solve auxNumber + 1
+repeat
+
+for p from 0 to 50 step 1 do
+    push map to programs
+    copy program to programs:p
+    push 0 to pcs
+    push list to inputBuffers
+    push p to inputBuffers:p
+    push 0 to inputCounts
+    push 0 to relBases
+repeat
+
+store -1 in last
+
+while 0 is equal to 0 do
+    store 1 in idle
+    for p from 0 to 50 step 1 do
+        clear outputBuffer
+        call runProgram with programs:p pcs:p inputBuffers:p outputBuffer inputCounts:p relBases:p 0
+        get length of outputBuffer in length
+        store 0 in i
+        while i is less than length do
+            store 0 in idle
+            store outputBuffer:i in address
+            in i solve i + 1
+            store outputBuffer:i in x
+            in i solve i + 1
+            store outputBuffer:i in y
+            in i solve i + 1
+            if address is equal to 255 then
+                store x in natx
+                store y in naty
+            else
+                push x to inputBuffers:address
+                push y to inputBuffers:address
+            end if
+        repeat
+    repeat
+    for p from 0 to 50 step 1 do
+        get length of inputBuffers:p in length
+        if inputCounts:p is greater than or equal to length then
+            push -1 to inputBuffers:p
+        else
+            store 0 in idle
+        end if
+    repeat
+    if idle is equal to 1 then
+        if naty is equal to last then
+            display naty crlf
+            exit
+        end if
+        push natx to inputBuffers:0
+        push naty to inputBuffers:0
+        store naty in last
+    end if
+repeat
+
+sub runProgram
+parameters:
+    program is number map
+    pc is number
+    inputBuffer is number list
+    outputBuffer is number list
+    inputCount is number
+    relBase is number
+    haltSignal is number
+local data:
+    opcode is text
+    mode0 is text
+    mode1 is text
+    mode2 is text
+    inA is number
+    inB is number
+    out is number
+    auxNumber is number
+procedure:
+    while 0 is equal to 0 do
+        store program:pc in opcode
+        in pc solve pc + 1
+
+        while 0 is equal to 0 do  # Pad with 0
+            get length of opcode in auxNumber
+            if auxNumber is less than 5 then
+                in opcode join "0" opcode
+            else
+                break
+            end if
+        repeat
+
+        get character at 0 from opcode in mode2
+        get character at 1 from opcode in mode1
+        get character at 2 from opcode in mode0
+        substring opcode from 3 length 2 in opcode
+        if opcode is equal to "99" then
+            store 1 in haltSignal
+            return
+        else if opcode is not equal to "03" then
+            call readParameter with mode0 program pc relBase inA
+            in pc solve pc + 1
+            if opcode is equal to "04" then
+                push inA to outputBuffer
+            else if opcode is equal to "09" then
+                in relBase solve inA + relBase
+            else
+                call readParameter with mode1 program pc relBase inB
+                in pc solve pc + 1
+                if opcode is equal to "01" then
+                    in out solve inA + inB
+                else if opcode is equal to "02" then
+                    in out solve inA * inB
+                else if opcode is equal to "05" then
+                    if inA is not equal to 0 then
+                        store inB in pc
+                    end if
+                    continue
+                else if opcode is equal to "06" then
+                    if inA is equal to 0 then
+                        store inB in pc
+                    end if
+                    continue
+                else if opcode is equal to "07" then
+                    if inA is less than inB then
+                        store 1 in out
+                    else
+                        store 0 in out
+                    end if
+                else if opcode is equal to "08" then
+                    if inA is equal to inB then
+                        store 1 in out
+                    else
+                        store 0 in out
+                    end if
+                end if
+                call saveParameter with mode2 program pc relBase out
+                in pc solve pc + 1
+            end if
+        else  # 03
+            get length of inputBuffer in auxNumber
+            if inputCount is less than auxNumber then
+                call saveParameter with mode0 program pc relBase inputBuffer:inputCount
+                in pc solve pc + 1
+                in inputCount solve inputCount + 1
+            else
+                in pc solve pc - 1
+                return
+            end if
+        end if
+    repeat
+end sub
+
+sub readParameter
+parameters:
+    mode is text
+    program is number map
+    pc is number
+    relBase is number
+    result is number
+procedure:
+    if mode is equal to "0" then
+        store program:program:pc in result
+    else if mode is equal to "1" then
+        store program:pc in result
+    else
+        store program:pc in result
+        in result solve result + relBase
+        store program:result in result
+    end if
+end sub
+
+sub saveParameter
+parameters:
+    mode is text
+    program is number map
+    pc is number
+    relBase is number
+    save is number
+local data:
+    result is number
+procedure:
+    if mode is equal to "0" then
+        store save in program:program:pc
+    else
+        store program:pc in result
+        in result solve result + relBase
+        store save in program:result
+    end if
+end sub
