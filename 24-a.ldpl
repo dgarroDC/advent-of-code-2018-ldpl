@@ -1,0 +1,98 @@
+data:
+
+auxText is text
+lines is text list
+line is text list
+char is text
+grid is text list list
+grid2 is text list list
+i is number
+j is number
+bio is number list list
+layout is number
+layouts is number map
+count is number
+deltas is number list list
+delta is number list
+di is number
+dj is number
+
+procedure:
+
+load file "24.txt" in auxText
+trim auxText in auxText
+split auxText by crlf in lines
+
+store 1 in count
+
+push list to grid
+push list to bio
+for i from 0 to 7 step 1 do
+    push "." to grid:0
+    push 0 to bio:0
+repeat
+store 1 in i
+for each auxText in lines do
+    push list to grid
+    push list to bio
+    push "." to grid:i
+    push 0 to bio:i
+    split auxText by "" in line
+    for each char in line do
+        push char to grid:i
+        push count to bio:i
+        in count solve 2 * count
+    repeat
+    push "." to grid:i
+    push 0 to bio:i
+    in i solve i + 1
+repeat
+push list to grid
+for i from 0 to 7 step 1 do
+    push "." to grid:6
+repeat
+
+push list to deltas
+push list to deltas
+push list to deltas
+push list to deltas
+push -1 to deltas:0
+push 0 to deltas:0
+push 0 to deltas:1
+push 1 to deltas:1
+push 1 to deltas:2
+push 0 to deltas:2
+push 0 to deltas:3
+push -1 to deltas:3
+
+copy grid to grid2
+
+while 0 is equal to 0 do
+    store 0 in layout
+    for i from 1 to 6 step 1 do
+        for j from 1 to 6 step 1 do
+            store 0 in count
+            for each delta in deltas do
+                in di solve i + delta:1
+                in dj solve j + delta:0
+                if grid:di:dj is equal to "#" then
+                    in count solve count + 1
+                end if
+            repeat
+            if grid:i:j is equal to "#" and count is not equal to 1 then
+                store "." in grid2:i:j
+            else if grid:i:j is equal to "." and ( count is equal to 1 or count is equal to 2 ) then
+                store "#" in grid2:i:j
+            end if
+            if grid2:i:j is equal to "#" then
+                in layout solve layout + bio:i:j
+            end if
+        repeat
+    repeat
+    if layouts:layout is equal to 1 then
+        display layout crlf
+        exit
+    end if
+    store 1 in layouts:layout
+    copy grid2 to grid
+repeat
