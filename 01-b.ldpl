@@ -7,7 +7,7 @@ result is number
 
 procedure:
 
-load file "1.txt" in auxText
+load file "01.txt" in auxText
 split auxText by crlf in lines
 delete last element of lines
 

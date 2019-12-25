@@ -11,7 +11,7 @@ program is number list
 
 procedure:
 
-load file "2.txt" in auxText
+load file "02.txt" in auxText
 split auxText by "," in programText
 
 for each auxText in programText do

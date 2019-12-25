@@ -16,7 +16,7 @@ haltSignal is number
 
 procedure:
 
-load file "9.txt" in auxText
+load file "09.txt" in auxText
 split auxText by "," in programList
 
 store 0 in auxNumber

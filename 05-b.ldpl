@@ -15,7 +15,7 @@ program is number list
 
 procedure:
 
-load file "5.txt" in auxText
+load file "05.txt" in auxText
 split auxText by "," in programText
 
 for each auxText in programText do
@@ -43,7 +43,7 @@ while 0 is equal to 0 do
     substring opcode from 3 length 2 in opcode
     if opcode is equal to "99" then
         break
-    else if opcode is equal to "01" or opcode is equal to "02" or opcode is equal to "04" then
+    else if opcode is not equal to "03" then
         if mode0 is equal to "0" then
             store program:program:pc in inA
         else
@@ -61,14 +61,36 @@ while 0 is equal to 0 do
             in pc solve pc + 1
             if opcode is equal to "01" then
                 in out solve inA + inB
-            else  # 02
+            else if opcode is equal to "02" then
                 in out solve inA * inB
+            else if opcode is equal to "05" then
+                if inA is not equal to 0 then
+                    store inB in pc
+                end if
+                continue
+            else if opcode is equal to "06" then
+                if inA is equal to 0 then
+                    store inB in pc
+                end if
+                continue
+            else if opcode is equal to "07" then
+                if inA is less than inB then
+                    store 1 in out
+                else
+                    store 0 in out
+                end if
+            else if opcode is equal to "08" then
+                if inA is equal to inB then
+                    store 1 in out
+                else
+                    store 0 in out
+                end if
             end if
             store out in program:program:pc
             in pc solve pc + 1
         end if
     else  # 03
-        store 1 in program:program:pc
+        store 5 in program:program:pc
         in pc solve pc + 1
     end if
 repeat

@@ -9,7 +9,7 @@ auxNumber is number
 
 procedure:
 
-load file "7.txt" in auxText
+load file "07.txt" in auxText
 split auxText by "," in programText
 
 push 0 to settings

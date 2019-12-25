@@ -14,7 +14,7 @@ result is number
 
 procedure:
 
-load file "8.txt" in auxText
+load file "08.txt" in auxText
 split auxText by "" in digits
 delete last element of digits
 

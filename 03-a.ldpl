@@ -7,11 +7,11 @@ lines is text list
 wires is text list list
 
 positions is number map
-minSteps is number
+minDist is number
 
 procedure:
 
-load file "3.txt" in auxText
+load file "03.txt" in auxText
 split auxText by "\n" in lines
 push list to wires
 push list to wires
@@ -33,7 +33,8 @@ local data:
     dY is number
     i is number
     length is number
-    steps is number
+    dist is number
+    distAux is number
 procedure:
     for each movement in wire do
         get character at 0 from movement in dir
@@ -53,27 +54,27 @@ procedure:
         substring movement from 1 length length in auxText
         store auxText in size
         for i from 0 to size step 1 do
-            incr steps
             in cX solve cX + dX
             in cY solve cY + dY
             in newPosition join cX "," cY
             if checkCross is equal to 0 then
-                if positions:newPosition is equal to 0 then
-                    store steps in positions:newPosition
+                store 1 in positions:newPosition
+            else if positions:newPosition is equal to 1 then
+                store cX in dist
+                abs dist
+                store cY in distAux
+                abs distAux
+                in dist solve dist + distAux
+                if dist is not equal to 0 and ( minDist is equal to -1 or dist is less than minDist ) then
+                    store dist in minDist
                 end if
-            else if positions:newPosition is not equal to 0 then
-                in steps solve steps + positions:newPosition
-                if newPosition is not equal to "0,0" and ( minSteps is equal to -1 or steps is less than minSteps ) then
-                    store steps in minSteps
-                end if
-                in steps solve steps - positions:newPosition
             end if
         repeat
     repeat
 end sub
 
-store -1 in minSteps
+store -1 in minDist
 call markPositions with wires:0 0
 call markPositions with wires:1 1
 
-display minSteps crlf
+display minDist crlf
